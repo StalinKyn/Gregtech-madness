@@ -7,7 +7,7 @@ on:
   
 
 jobs:
-  build:
+  build-and-upload:
 
     runs-on: windows-latest
 
@@ -19,12 +19,7 @@ jobs:
         java-version: 1.8
     - name: Build with Gradle
       run: ./gradlew build
-      
-  upload:
-    
-    runs-on: windows-latest
-    steps:
-      - uses: actions/upload-artifact@v1
-        with:
-          name: night-build
-          path: build\libs\gregtech-5.09.31.jar 
+    - uses: actions/upload-artifact@v1
+      with:
+        name: night-build
+        path: build\libs\gregtech-5.09.31.jar 
