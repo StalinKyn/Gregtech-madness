@@ -1,0 +1,1 @@
+package gregtech.api.interfaces.metatileentity;import gregtech.common.items.behaviors.Behaviour_HolographicProjector;public interface IProjectable {    public String[][] GetStructure();    public boolean RenderStructure(boolean aBuild, IGuideRenderer renderer, int[] params);    public String[] GetParamNames();}

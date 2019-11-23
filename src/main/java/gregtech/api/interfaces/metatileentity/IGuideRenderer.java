@@ -1,0 +1,1 @@
+package gregtech.api.interfaces.metatileentity;import gregtech.api.objects.GT_GuideRendererParticle;import java.util.ArrayList;public interface IGuideRenderer {    public ArrayList<GT_GuideRendererParticle> getParticleArray();}
