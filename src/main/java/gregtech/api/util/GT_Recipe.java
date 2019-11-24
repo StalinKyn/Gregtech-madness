@@ -722,6 +722,14 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                 GT_OreDictUnificator.setStackArray(true, tRecipe.mInputsPerIteration);
                 GT_OreDictUnificator.setStackArray(true, tRecipe.mResearchItems);
                 if (tMap != null) addToItemMap(tRecipe,false);
+                NBTTagCompound aTag = new NBTTagCompound();
+                aTag.setTag("researchItemTag0",tRecipe.mTargetRecipe.mOutputs[0].writeToNBT(new NBTTagCompound()));
+                aTag.setInteger("capacitySize", 16);
+                aTag.setInteger("usedCapacity", 1);
+                aTag.setBoolean("isComputer",true);
+                ItemStack aOrb = ItemList.EngineersBook.get(1L);
+                aOrb.setTagCompound(aTag);
+                tRecipe.mTargetRecipe.mSpecialItems = aOrb;
             }
             for(GT_Recipe tRecipe: GT_Recipe_Map.sResearchStationVisualRecipes.mRecipeList){
                 NBTTagCompound aTag = new NBTTagCompound();
@@ -730,6 +738,15 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                 aTag.setInteger("usedCapacity", 1);
                 aTag.setBoolean("isComputer",true);
                 ItemStack aOrb = ItemList.Tool_DataCluster.get(1L);
+                aOrb.setTagCompound(aTag);
+                tRecipe.mOutputs[0] = aOrb;
+            }
+            for(GT_Recipe tRecipe: GT_Recipe_Map.sPrimitiveResearchStationVisualRecipes.mRecipeList){
+                NBTTagCompound aTag = new NBTTagCompound();
+                aTag.setTag("researchItemTag0", tRecipe.mOutputs[1].writeToNBT(new NBTTagCompound()));
+                aTag.setInteger("capacitySize", 16);
+                aTag.setInteger("usedCapacity", 1);
+                ItemStack aOrb = ItemList.EngineersBook.get(1L);
                 aOrb.setTagCompound(aTag);
                 tRecipe.mOutputs[0] = aOrb;
             }
