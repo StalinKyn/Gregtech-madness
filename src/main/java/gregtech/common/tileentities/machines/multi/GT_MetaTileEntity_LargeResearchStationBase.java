@@ -29,6 +29,7 @@ public abstract class GT_MetaTileEntity_LargeResearchStationBase extends GT_Meta
 
     Object[] mRequest = new Object[3];
     int mPassedIterations = 0;
+    int mTargetIterationsCount = 0;
 
 
     public GT_MetaTileEntity_Hatch_InputBus mScanningHatch = null;
@@ -51,8 +52,10 @@ public abstract class GT_MetaTileEntity_LargeResearchStationBase extends GT_Meta
 
     @Override
     public boolean checkRecipe(ItemStack aStack) {
-        if(currentRecipe!=prevRecipe)
+        if(currentRecipe!=prevRecipe){
             mPassedIterations = 0;
+            mTargetIterationsCount = currentRecipe.mMinIterationsCount+getBaseMetaTileEntity().getRandomNumber(currentRecipe.mMaxIterationsCount-currentRecipe.mMinIterationsCount);
+        }
         if(!GT_Recipe.GT_Recipe_ResearchStation.checkInputs(true,false, getStoredFluids(), getStoredInputs(),currentRecipe)){
             mRequest = null;
             return false;
@@ -118,14 +121,11 @@ public abstract class GT_MetaTileEntity_LargeResearchStationBase extends GT_Meta
         currentRecipe = null;
         if(prevRecipe.mMinIterationsCount > mPassedIterations)
             return;
-        if(prevRecipe.mMaxIterationsCount<=mPassedIterations){
+        if(mPassedIterations>=mTargetIterationsCount){
             saveData(prevRecipe.mTargetRecipe.mOutputs[0]);
             mPassedIterations = 0;
+            mTargetIterationsCount = currentRecipe.mMinIterationsCount+getBaseMetaTileEntity().getRandomNumber(currentRecipe.mMaxIterationsCount-currentRecipe.mMinIterationsCount);
             return;
-        }
-        if(((float)(mPassedIterations-prevRecipe.mMinIterationsCount))/(float)(prevRecipe.mMaxIterationsCount-prevRecipe.mMinIterationsCount)*100<getBaseMetaTileEntity().getRandomNumber(100)){
-            saveData(prevRecipe.mTargetRecipe.mOutputs[0]);
-            mPassedIterations = 0;
         }
 
     }
