@@ -4,8 +4,8 @@ on:
   push:
     branches:
     - master
-  schedule:
-  - cron: "0 2 * * *"
+    tags:
+      - '*v*.*'
 
 jobs:
   build-and-upload:
@@ -24,3 +24,18 @@ jobs:
       with:
         name: night-build
         path: build\libs\gregtech-5.09.31.jar 
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - First Change
+          - Second Change
+        draft: false
+        prerelease: true
