@@ -12,6 +12,7 @@ import codechicken.nei.recipe.TemplateRecipeHandler;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import gregtech.GT_Mod;
 import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.ItemList;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.gui.GT_GUIContainer_BasicMachine;
 import gregtech.api.objects.ItemData;
@@ -136,6 +137,22 @@ public class GT_NEI_DefaultHandler
                     tInputs.add(GT_Utility.copy(new Object[]{tData.filledContainer}));
                 }
             }
+        }
+        if(GT_Utility.areStacksEqual(aInput, ItemList.Tool_DataCluster.get(1L),true)){
+            for(GT_Recipe tRecipe : mRecipeMap.mRecipeList){
+                if(tRecipe.mOutputs.length>0&&tRecipe.mSpecialItems instanceof ItemStack)
+                    if(GT_NEI_ResearchStationHandler.checkIfDataItemContainsItems(aInput,(ItemStack)tRecipe.mSpecialItems))
+                        arecipes.add(new CachedDefaultRecipe(tRecipe));
+            }
+            return;
+        }
+        if(GT_Utility.areStacksEqual(aInput, ItemList.EngineersBook.get(1L),true)){
+            for(GT_Recipe tRecipe : mRecipeMap.mRecipeList){
+                if(tRecipe.mOutputs.length>0&&tRecipe.mSpecialItems instanceof ItemStack)
+                if(GT_NEI_ResearchStationHandler.checkIfDataItemContainsItems(aInput,(ItemStack)tRecipe.mSpecialItems))
+                    arecipes.add(new CachedDefaultRecipe(tRecipe));
+            }
+            return;
         }
         for (GT_Recipe tRecipe : getSortedRecipes()) {
             if (!tRecipe.mHidden) {

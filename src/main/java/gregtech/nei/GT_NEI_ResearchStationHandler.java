@@ -24,6 +24,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
@@ -99,15 +100,17 @@ public class GT_NEI_ResearchStationHandler
             }
         }
         if(GT_Utility.areStacksEqual(aResult, ItemList.Tool_DataCluster.get(1L),true)){
+            if(!mIsEcelctric) return;
             for(GT_Recipe tRecipe : mRecipeMap.mRecipeList){
-                if(GT_Utility.areStacksEqual(aResult,tRecipe.mOutputs[0],false))
+                if(checkIfDataItemContainsItems(aResult,tRecipe.mOutputs[0]))
                     arecipes.add(new CachedDefaultRecipe(tRecipe,this.mIsEcelctric));
             }
             return;
         }
         if(GT_Utility.areStacksEqual(aResult, ItemList.EngineersBook.get(1L),true)){
+            if(mIsEcelctric) return;
             for(GT_Recipe tRecipe : mRecipeMap.mRecipeList){
-                if(GT_Utility.areStacksEqual(aResult,tRecipe.mOutputs[0],false))
+                if(checkIfDataItemContainsItems(aResult,tRecipe.mOutputs[0]))
                     arecipes.add(new CachedDefaultRecipe(tRecipe,this.mIsEcelctric));
             }
             return;
@@ -231,6 +234,23 @@ public class GT_NEI_ResearchStationHandler
             }
         }
         return currenttip;
+    }
+
+    public static boolean checkIfDataItemContainsItems(ItemStack dataItem1, ItemStack dataItem2){ //item 1 can contain multiple items. item 2 only single
+        if(dataItem1==null||dataItem2==null||dataItem1.getTagCompound()==null||dataItem2.getTagCompound()==null)
+            return false;
+        ItemStack aStack2 = ItemStack.loadItemStackFromNBT(dataItem2.getTagCompound().getCompoundTag("researchItemTag0"));
+        ItemStack[] tStacks = new ItemStack[16];
+        NBTTagCompound tag1 = dataItem1.getTagCompound();
+        int t = tag1.getInteger("usedCapacity");
+        for(int i = 0; i < t; i++){
+            tStacks[i] = ItemStack.loadItemStackFromNBT(tag1.getCompoundTag("researchItemTag"+i));
+        }
+        for(ItemStack aStack1 :tStacks){
+            if(GT_Utility.areStacksEqual(aStack1,aStack2,true))
+                return true;
+        }
+        return false;
     }
 
     public void drawExtras(int aRecipeIndex) {
