@@ -721,7 +721,7 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
             for (GT_Recipe_ResearchStation tRecipe : sPrimitiveResearchStationRecipeList) {
                 GT_OreDictUnificator.setStackArray(true, tRecipe.mInputsPerIteration);
                 GT_OreDictUnificator.setStackArray(true, tRecipe.mResearchItems);
-                if (tMap != null) addToItemMap(tRecipe,false);
+                if (tMap != null) addToItemMap(tRecipe,true);
                 NBTTagCompound aTag = new NBTTagCompound();
                 aTag.setTag("researchItemTag0",tRecipe.mTargetRecipe.mOutputs[0].writeToNBT(new NBTTagCompound()));
                 aTag.setInteger("capacitySize", 16);

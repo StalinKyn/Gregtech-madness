@@ -8,6 +8,7 @@ import gregtech.api.objects.GT_CopiedBlockTexture;
 import gregtech.api.util.GT_LanguageManager;
 import gregtech.api.util.GT_Utility;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Facing;
@@ -176,4 +177,5 @@ public class GT_Block_Casings8
         aWorld.setBlockMetadataWithNotify(aX,aY,aZ,aMeta,0);
         //called when block placed and another block finds this and updates self meta
     }
+
 }

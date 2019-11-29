@@ -27,9 +27,10 @@ public class GT_MetaTileEntity_PrimitiveResearchStation extends GT_MetaTileEntit
 
     public int mPassedIterations = 0;
     public int mMaxIterations = 0;
+    public int mTargetIterationsCount = 0;
 
     public GT_MetaTileEntity_PrimitiveResearchStation(int aID, String aName, String aNameRegional, int aTier) {
-        super(aID, aName, aNameRegional, aTier, 1, new String[]{"Copies seeds with efficiency: "+Math.min((aTier+5)*10,100)+"%","Uses UUMatter for each seed","The better crop the more UUMatter it needs","Can replicate only scanned seeds"}, 1, 1, "PrimitiveResearchStation.png", "", new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/organic_replicator/OVERLAY_SIDE_ACTIVE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/organic_replicator/OVERLAY_SIDE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/organic_replicator/OVERLAY_FRONT_ACTIVE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/organic_replicator/OVERLAY_FRONT")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/organic_replicator/OVERLAY_TOP_ACTIVE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/organic_replicator/OVERLAY_TOP")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/organic_replicator/OVERLAY_BOTTOM_ACTIVE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("OVERLAY_BOTTOM")));
+        super(aID, aName, aNameRegional, aTier, 1, new String[]{"Copies seeds with efficiency: "+Math.min((aTier+5)*10,100)+"%","Uses UUMatter for each seed","The better crop the more UUMatter it needs","Can replicate only scanned seeds"}, 1, 1, "PrimitiveResearchStation.png", "", new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/primitive_research_station/OVERLAY_SIDE_ACTIVE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/primitive_research_station/OVERLAY_SIDE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/primitive_research_station/OVERLAY_FRONT_ACTIVE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/primitive_research_station/OVERLAY_FRONT")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/primitive_research_station/OVERLAY_TOP_ACTIVE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/primitive_research_station/OVERLAY_TOP")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("basicmachines/primitive_research_station/OVERLAY_BOTTOM_ACTIVE")), new GT_RenderedTexture(new Textures.BlockIcons.CustomIcon("OVERLAY_BOTTOM")));
     }
 
     public GT_MetaTileEntity_PrimitiveResearchStation(String aName, int aTier, String aDescription, ITexture[][][] aTextures, String aGUIName, String aNEIName) {
@@ -57,6 +58,8 @@ public class GT_MetaTileEntity_PrimitiveResearchStation extends GT_MetaTileEntit
 
     public int checkRecipe(){
         ItemStack[] tResearchInputs = getResearchInputs();
+        if(getSpecialInput()==null||GT_Utility.areStacksEqual(getSpecialInput(),ItemList.EngineersBook.get(1L),true))
+            return 0;
         if(tResearchInputs!=null)
             currentRecipe = GT_Recipe.GT_Recipe_ResearchStation.findRecipe(tResearchInputs,true);//todo check this
         if(currentRecipe!=null){
@@ -64,6 +67,8 @@ public class GT_MetaTileEntity_PrimitiveResearchStation extends GT_MetaTileEntit
             if(GT_Recipe.GT_Recipe_ResearchStation.checkInputs(false,false, new FluidStack[0], tItemInputs,currentRecipe)){
                 if(currentRecipe!=prevRecipe){
                     mPassedIterations = 0;
+                    mTargetIterationsCount = currentRecipe.mMinIterationsCount+getBaseMetaTileEntity().getRandomNumber(currentRecipe.mMaxIterationsCount-currentRecipe.mMinIterationsCount);
+
                 }
 
                 if(!GT_Recipe.GT_Recipe_ResearchStation.checkInputs(true,false, new FluidStack[0], tItemInputs,currentRecipe)){
@@ -109,17 +114,13 @@ public class GT_MetaTileEntity_PrimitiveResearchStation extends GT_MetaTileEntit
         mPassedIterations++;
         prevRecipe = currentRecipe;
         currentRecipe = null;
-        saveData(prevRecipe.mTargetRecipe.mOutputs[0]);
         if(prevRecipe.mMinIterationsCount > mPassedIterations)
             return;
-        if(prevRecipe.mMaxIterationsCount<=mPassedIterations){
+        if(mPassedIterations>=mTargetIterationsCount){
             saveData(prevRecipe.mTargetRecipe.mOutputs[0]);
             mPassedIterations = 0;
+            mTargetIterationsCount = currentRecipe.mMinIterationsCount+getBaseMetaTileEntity().getRandomNumber(currentRecipe.mMaxIterationsCount-currentRecipe.mMinIterationsCount);
             return;
-        }
-        if(mMaxIterations<=mPassedIterations){
-            saveData(prevRecipe.mTargetRecipe.mOutputs[0]);
-            mPassedIterations = 0;
         }
         super.endProcess();
     }
@@ -166,5 +167,35 @@ public class GT_MetaTileEntity_PrimitiveResearchStation extends GT_MetaTileEntit
     @Override
     public boolean isFluidInputAllowed(FluidStack aFluid) {
         return true;
+    }
+
+    @Override
+    public boolean isElectric() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnetInput() {
+        return false;
+    }
+
+    @Override
+    public long maxEUStore() {
+        return 0;
+    }
+
+    @Override
+    public long maxEUInput() {
+        return 0;
+    }
+
+    @Override
+    public int rechargerSlotCount() {
+        return 0;
+    }
+
+    @Override
+    public int dechargerSlotCount() {
+        return 0;
     }
 }
