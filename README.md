@@ -5,6 +5,8 @@ GT5-Unofficial
 
 GT5-Unofficial is a decompiled and modified version of GT5.07.07. The goal of the mod is to maintain and extend the end game of GT5.
 
+GT-M is modified version of GT5.09.30U
+
 ## Downloads
 
 Builds can be found on the [IC2 Forums](http://forum.industrial-craft.net/index.php?page=Thread&threadID=11488)

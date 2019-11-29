@@ -36,7 +36,7 @@ public class GT_MetaTileEntity_EngineersWorktable extends GT_MetaTileEntity_Basi
     public GT_Recipe.GT_Recipe_Map getRecipeList() {
         return GT_Recipe.GT_Recipe_Map.sEngineersWorkstationRecipes;
     }
-    
+
     @Override
     protected boolean hasEnoughEnergyToCheckRecipe() {
             return true;
