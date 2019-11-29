@@ -109,16 +109,18 @@ public class GT_Block_Casings8
     }
 
     @SideOnly(Side.CLIENT)
-    public boolean shouldSideBeRendered(IBlockAccess p_149646_1_, int p_149646_2_, int p_149646_3_, int p_149646_4_, int p_149646_5_)
+    public boolean shouldSideBeRendered(IBlockAccess aWorld, int aX, int aY, int aZ, int aSide)
     {
-        Block block = p_149646_1_.getBlock(p_149646_2_, p_149646_3_, p_149646_4_);
+        Block block = aWorld.getBlock(aX, aY, aZ);
 
         if (this == Blocks.glass || this instanceof GT_Block_Casings8)
         {
-            if (p_149646_1_.getBlockMetadata(p_149646_2_, p_149646_3_, p_149646_4_) != p_149646_1_.getBlockMetadata(p_149646_2_ - Facing.offsetsXForSide[p_149646_5_], p_149646_3_ - Facing.offsetsYForSide[p_149646_5_], p_149646_4_ - Facing.offsetsZForSide[p_149646_5_]))
+            if (aWorld.getBlockMetadata(aX, aY, aZ) != aWorld.getBlockMetadata(aX - Facing.offsetsXForSide[aSide], aY - Facing.offsetsYForSide[aSide], aZ - Facing.offsetsZForSide[aSide]))
             {
                 return true;
             }
+            if(aWorld.getBlockMetadata(aX, aY, aZ)==0)
+                return true;
 
             if (block == this)
             {
