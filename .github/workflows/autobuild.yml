@@ -2,7 +2,7 @@ name: Java CI
 
 on:
   project_card:
-    types: [created, moved, edited]
+    types: [moved]
 
 
 
