@@ -1,9 +1,8 @@
 name: Java CI
 
-on: 
-  push:
-    tags:
-      - 'v*a'
+on:
+  project_card:
+    types: [created, moved, edited]
 
 
 
