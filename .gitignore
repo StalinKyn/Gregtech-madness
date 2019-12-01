@@ -67,6 +67,9 @@ local.properties
 # TeXlipse plugin
 .texlipse
 
+#Caches
+!/gradlewHome/**
+
 ### Intellij IDEA ###
 
 *.iml
