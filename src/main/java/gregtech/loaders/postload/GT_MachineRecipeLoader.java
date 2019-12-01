@@ -2750,8 +2750,8 @@ if(Loader.isModLoaded("Railcraft")){
         GT_ModHandler.addCompressionRecipe(GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Obsidian, 2L), GT_OreDictUnificator.get(OrePrefixes.plate, Materials.Obsidian, 1L));
         GT_Values.RA.addImplosionRecipe(GT_OreDictUnificator.get(OrePrefixes.plate, Materials.Obsidian, 9L), 16, GT_OreDictUnificator.get(OrePrefixes.plateDense, Materials.Obsidian, 1L), GT_OreDictUnificator.get(OrePrefixes.dustTiny, Materials.DarkAsh, 8));
         GT_Values.RA.addCutterRecipe(GT_OreDictUnificator.get(OrePrefixes.block, Materials.Obsidian, 1L), GT_OreDictUnificator.get(OrePrefixes.plate, Materials.Obsidian, 1L), GT_Values.NI, 100, 120);
-        GT_Values.RA.addEngineersWorkstationRecipe(new ItemStack[]{GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Copper,12L),GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Gold,12L)},null,null,GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Osmium,2L),20);
-        GT_Values.RA.addPrimitiveResearchStationRecipe(new ItemStack[]{GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Gold,1L)},250,new ItemStack[]{GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Osmiridium,1L),GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Tetrafluoroethylene,1L)},null,GT_Recipe.GT_Recipe_Map.sEngineersWorkstationRecipes.getLastRecipe(),10,20);
+        GT_Values.RA.addEngineersWorkstationRecipe(new ItemStack[]{GT_OreDictUnificator.get(OrePrefixes.circuit,Materials.Master,1L),GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Copper,12L),GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Gold,12L)},null,null,GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Osmium,2L),20);
+        GT_Values.RA.addPrimitiveResearchStationRecipe(new ItemStack[]{GT_OreDictUnificator.getFirstOre(OrePrefixes.circuit.get(Materials.Master),1)},250,new ItemStack[]{GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Osmiridium,1L),GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Tetrafluoroethylene,1L)},null,GT_Recipe.GT_Recipe_Map.sEngineersWorkstationRecipes.getLastRecipe(),10,20);
 
 
     }

@@ -1196,8 +1196,8 @@ public class GT_Loader_MetaTileEntities implements Runnable {
         ItemList.Machine_ZPM_OrganicReplicator.set(new GT_MetaTileEntity_OrganicReplicator(687,"basicmachine.organicreplicator.tier.07","Advanced Organic Replicator VI",7).getStackForm(1L));
         ItemList.Machine_UV_OrganicReplicator.set(new GT_MetaTileEntity_OrganicReplicator(688,"basicmachine.organicreplicator.tier.08","Advanced Organic Replicator VII",8).getStackForm(1L));
         ItemList.WirelessTransmitter.set(new GT_MetaTileEntity_WirelessEnergyTransmitter(689,"basicmachine.wirelesstransmitter.tier.01","Wireless Transmitter V",5,15).getStackForm(1L));
-        ItemList.PrimitiveResearchStation.set(new GT_MetaTileEntity_PrimitiveResearchStation(420,"basicmachine.primitiveresearchstation.tier.01","Primitive Research Station",1).getStackForm(1L));
-        ItemList.EngineersWorkstation.set(new GT_MetaTileEntity_EngineersWorktable(469,"basicmachines.engineersworkstation.tier.01","Engineers Workstation",1).getStackForm(1L));
+        ItemList.PrimitiveResearchStation.set(new GT_MetaTileEntity_PrimitiveResearchStation(420,"basicmachine.primitiveresearchstation.tier.00","Primitive Research Station",0).getStackForm(1L));
+        ItemList.EngineersWorkstation.set(new GT_MetaTileEntity_EngineersWorktable(469,"basicmachines.engineersworkstation.tier.00","Engineers Workstation",0).getStackForm(1L));
 
         GT_ModHandler.addCraftingRecipe(ItemList.Machine_LV_OrganicReplicator.get(1L),bitsd,new Object[]{"CRC","WFW","CMC",'M',ItemList.Hull_LV,'R',Ic2Items.crop,'C',OrePrefixes.circuit.get(Materials.Basic),'F',ItemList.Field_Generator_LV,'W',OrePrefixes.cableGt01.get(Materials.Tin)});
         GT_ModHandler.addCraftingRecipe(ItemList.Machine_MV_OrganicReplicator.get(1L),bitsd,new Object[]{"CRC","WFW","CMC",'M',ItemList.Hull_MV,'R',Ic2Items.crop,'C',OrePrefixes.circuit.get(Materials.Good),'F',ItemList.Field_Generator_MV,'W',OrePrefixes.cableGt01.get(Materials.Copper)});
