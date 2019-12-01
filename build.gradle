@@ -155,6 +155,16 @@ task devJar(type: Jar) {
     }
 }
 
+task resolveAllDependencies {
+    description "Resolves all transitive dependencies (e.g. to build offline later)."
+
+    doLast {
+        configurations.all {
+            it.resolve()
+        }
+    }
+}
+
 artifacts {
     archives devJar
 }

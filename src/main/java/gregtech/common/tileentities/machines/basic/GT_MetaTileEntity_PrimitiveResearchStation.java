@@ -58,7 +58,7 @@ public class GT_MetaTileEntity_PrimitiveResearchStation extends GT_MetaTileEntit
 
     public int checkRecipe(){
         ItemStack[] tResearchInputs = getResearchInputs();
-        if(getSpecialInput()==null||GT_Utility.areStacksEqual(getSpecialInput(),ItemList.EngineersBook.get(1L),true))
+        if(getSpecialInput()==null||!GT_Utility.areStacksEqual(getSpecialInput(),ItemList.EngineersBook.get(1L),true))
             return 0;
         if(tResearchInputs!=null)
             currentRecipe = GT_Recipe.GT_Recipe_ResearchStation.findRecipe(tResearchInputs,true);//todo check this

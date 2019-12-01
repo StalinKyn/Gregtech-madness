@@ -12,6 +12,7 @@ import gregtech.api.util.GT_Log;
 import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_OreDictUnificator;
 import gregtech.api.util.GT_Recipe;
+import gregtech.common.render.GT_Renderer_Entity_Arrow;
 import gregtech.common.tileentities.automation.*;
 import gregtech.common.tileentities.boilers.GT_MetaTileEntity_Boiler_Bronze;
 import gregtech.common.tileentities.boilers.GT_MetaTileEntity_Boiler_Lava;
@@ -498,8 +499,11 @@ public class GT_Loader_MetaTileEntities implements Runnable {
         GT_ModHandler.addCraftingRecipe(ItemList.Machine_Bronze_Boiler_Solar.get(1L, new Object[0]), bits, new Object[]{"GGG", "SSS", aTextPlateMotor, 'M', ItemList.Hull_Bronze_Bricks, 'P', OrePrefixes.pipeSmall.get(Materials.Bronze), 'S', OrePrefixes.plate.get(Materials.Silver), 'G', new ItemStack(Blocks.glass, 1)});
 
         ItemList.Machine_Bronze_BlastFurnace.set(new GT_MetaTileEntity_BronzeBlastFurnace(108, "bronzemachine.blastfurnace", "Bronze Plated Blast Furnace").getStackForm(1L));
-        if (!Loader.isModLoaded("terrafirmacraft")) {
+        if (!Loader.isModLoaded("terrafirmacraft")&&!GT_Mod.gregtechproxy.mResearchStationOn) {
             GT_ModHandler.addCraftingRecipe(ItemList.Machine_Bronze_BlastFurnace.get(1L, new Object[0]), bits, new Object[]{"PFP", "FwF", "PFP", 'P', OrePrefixes.plate.get(Materials.Bronze), 'F', OreDictNames.craftingFurnace});
+        }else if(GT_Mod.gregtechproxy.mResearchStationOn){
+            GT_Values.RA.addEngineersWorkstationRecipe(new ItemStack[]{new ItemStack(Blocks.furnace, 4, 32767),GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Bronze,16L)},GT_Values.NF,null,ItemList.Machine_Bronze_BlastFurnace.get(1L),160);
+            GT_Values.RA.addPrimitiveResearchStationRecipe(new ItemStack[]{GT_OreDictUnificator.get(OrePrefixes.nugget,Materials.WroughtIron,4L), GT_OreDictUnificator.get(OrePrefixes.dust,Materials.Coal,2L)},200,new ItemStack[]{GT_OreDictUnificator.get(OrePrefixes.plate,Materials.Bronze,1L), Materials.Coal.getGems(4),GT_OreDictUnificator.get(OrePrefixes.dustSmall,Materials.Iron,2L)},null, GT_Recipe.GT_Recipe_Map.sEngineersWorkstationRecipes.getLastRecipe(),5,20);
         }
 
         ItemList.Machine_Bricked_BlastFurnace.set(new GT_MetaTileEntity_BrickedBlastFurnace(130, "multimachine.brickedblastfurnace", "Bricked Blast Furnace").getStackForm(1L));
