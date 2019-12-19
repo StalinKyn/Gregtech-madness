@@ -113,6 +113,12 @@ public class GT_Mod implements IGT_Mod {
                 tRunnable.run();
             }
         } catch (Throwable e) {e.printStackTrace(GT_Log.err);}
+        File fFile = new File(new File(aEvent.getModConfigurationDirectory(), "GregTech"), "Complexity.cfg");
+        Configuration tComplexityCfg  = new Configuration(fFile);
+        tComplexityCfg.load();
+        tComplexityCfg.setCategoryComment("general","Configures ingame recipe complixity");
+        gregtechproxy.gameComplexity = tComplexityCfg.get("general","ComplexityLevel",1,"Determines game complexity").getInt();
+        tComplexityCfg.save();
         File tFile = new File(new File(aEvent.getModConfigurationDirectory(), "GregTech"), "GregTech.cfg");
         Configuration tMainConfig = new Configuration(tFile);
         tMainConfig.load();
