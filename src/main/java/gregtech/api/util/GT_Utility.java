@@ -4,6 +4,7 @@ import cofh.api.transport.IItemDuct;
 import cpw.mods.fml.common.FMLCommonHandler;
 import gregtech.api.GregTech_API;
 import gregtech.api.damagesources.GT_DamageSources;
+import gregtech.api.datasystem.INodeContainer;
 import gregtech.api.enchants.Enchantment_Radioactivity;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.ItemList;
@@ -17,6 +18,7 @@ import gregtech.api.interfaces.tileentity.*;
 import gregtech.api.items.GT_EnergyArmor_Item;
 import gregtech.api.items.GT_Generic_Item;
 import gregtech.api.metatileentity.implementations.GT_MetaPipeEntity_Cable;
+import gregtech.api.metatileentity.implementations.GT_MetaPipeEntity_DataCable;
 import gregtech.api.net.GT_Packet_Sound;
 import gregtech.api.objects.GT_ItemStack;
 import gregtech.api.objects.ItemData;
@@ -1649,6 +1651,21 @@ public class GT_Utility {
         int rEUAmount = 0;
 
         TileEntity tTileEntity = aWorld.getTileEntity(aX, aY, aZ);
+
+        if(tTileEntity instanceof  IGregTechTileEntity){
+            IGregTechTileEntity igt = (IGregTechTileEntity) tTileEntity;
+            if(igt.getMetaTileEntity() instanceof INodeContainer){
+                tList.add("node "+((INodeContainer)igt.getMetaTileEntity()).getNode().mConnections.toString());
+            }
+            if(igt.getMetaTileEntity() instanceof GT_MetaPipeEntity_DataCable){
+                GT_MetaPipeEntity_DataCable cab = (GT_MetaPipeEntity_DataCable)igt.getMetaTileEntity();
+                if(cab.isNode)
+                tList.add("is node "+cab.isNode);
+
+
+            }
+
+        }
 
         Block tBlock = aWorld.getBlock(aX, aY, aZ);
 

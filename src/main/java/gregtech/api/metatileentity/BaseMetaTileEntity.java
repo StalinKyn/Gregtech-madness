@@ -417,9 +417,13 @@ public class BaseMetaTileEntity extends BaseTileEntity implements IGregTechTileE
                             if (mMetaTileEntity.isEnetOutput() && oOutput > 0) {
                                 long tOutputVoltage = Math.max(oOutput, oOutput + (1 << GT_Utility.getTier(oOutput))), tUsableAmperage = Math.min(getOutputAmperage(), (getStoredEU() - mMetaTileEntity.getMinimumStoredEU()) / tOutputVoltage);
                                 if (tUsableAmperage > 0) {
+                                  //  if(worldObj.isRemote) return;
+                                   // long time = System.nanoTime();
                                     long tEU = tOutputVoltage * IEnergyConnected.Util.emitEnergyToNetwork(oOutput, tUsableAmperage, this);
                                     mAverageEUOutput[mAverageEUOutputIndex] += tEU;
                                     decreaseStoredEU(tEU, true);
+                                   // System.out.println("[a]"+"nanos elapsed: "+( System.nanoTime() - time));
+
                                 }
                             }
                             if (getEUCapacity() > 0) {
@@ -640,7 +644,10 @@ public class BaseMetaTileEntity extends BaseTileEntity implements IGregTechTileE
 
         if (hasValidMetaTileEntity()) {
             try {
-                mMetaTileEntity.receiveClientEvent((byte) aEventID, (byte) aValue);
+                if(aEventID>128)
+                    mMetaTileEntity.receiveExtendedBlockEvent(aEventID,aValue);
+                else
+                    mMetaTileEntity.receiveClientEvent((byte) aEventID, (byte) aValue);
             } catch (Throwable e) {
                 GT_Log.err.println("Encountered Exception while receiving Data from the Server, the Client should've been crashed by now, but I prevented that. Please report immidietly to GregTech Intergalactical!!!");
                 e.printStackTrace(GT_Log.err);
@@ -2088,4 +2095,11 @@ public class BaseMetaTileEntity extends BaseTileEntity implements IGregTechTileE
     	return slotIndex + indexShift;
     }
 
+    @Override
+    public void onAdjacentBlockChange(int aX, int aY, int aZ) {
+        super.onAdjacentBlockChange(aX, aY, aZ);
+        if (mMetaTileEntity!=null)
+        mMetaTileEntity.onAdjacentBlockChange(aX, aY, aZ);
+
+    }
 }

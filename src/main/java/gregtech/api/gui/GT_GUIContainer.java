@@ -53,6 +53,7 @@ public class GT_GUIContainer extends GuiContainer {
             }
         }
     }
+
     /*
     @Override
     protected void drawSlotInventory(Slot par1Slot) {

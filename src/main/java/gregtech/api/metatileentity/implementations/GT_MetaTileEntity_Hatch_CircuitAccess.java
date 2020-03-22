@@ -42,7 +42,7 @@ public class GT_MetaTileEntity_Hatch_CircuitAccess extends  GT_MetaTileEntity_Ha
 
     @Override
     public ITexture[] getTexturesActive(ITexture aBaseTexture) {
-        return new ITexture[]{aBaseTexture, new GT_RenderedTexture(Textures.BlockIcons.OVERLAY_DATA_ACCESS)}; //TODO:fix icons
+        return new ITexture[]{aBaseTexture, new GT_RenderedTexture(Textures.BlockIcons.OVERLAY_DATA_ACCESS)};
     }
 
     @Override

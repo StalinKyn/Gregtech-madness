@@ -915,4 +915,12 @@ public abstract class MetaTileEntity implements IMetaTileEntity {
     public String getAlternativeModeText(){
     	return "";
     }
+
+    @Override
+    public void receiveExtendedBlockEvent(int aID, int aValue) {    }
+
+    @Override
+    public void onAdjacentBlockChange(int aX, int aY, int aZ) {
+
+    }
 }

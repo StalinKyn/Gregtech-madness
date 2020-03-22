@@ -51,7 +51,10 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
      * An Item that needs to be inside the Special Slot, like for example the Copy Slot inside the Printer. This is only useful for Fake Recipes in NEI, since findRecipe() and containsInput() don't give a shit about this Field. Lists are also possible.
      */
     public Object mSpecialItems;
-    public int mDuration, mEUt, mSpecialValue;
+    /**
+     * Research ID means id of research, -1 if no one.
+     */
+    public int mDuration, mEUt, mSpecialValue, mResearchID = -1;
     /**
      * Use this to just disable a specific Recipe, but the Configuration enables that already for every single Recipe.
      */
@@ -270,6 +273,11 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
         GT_Log.out.println("GT_Mod: Re-Unificating Recipes.");
         for (GT_Recipe_Map tMapEntry : GT_Recipe_Map.sMappings) tMapEntry.reInit();
         GT_Recipe_ResearchStation.reInit();
+    }
+
+    public void setResearchID(int aID){
+        mResearchID = aID;
+        mRequireResearch = true;
     }
 
     // -----
@@ -504,9 +512,25 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
         public static final ArrayList<GT_Recipe_ResearchStation> sLargeResearchStationRecipeList = new ArrayList<>();
         public static final ArrayList<GT_Recipe_ResearchStation> sPrimitiveResearchStationRecipeList = new ArrayList<>();
 
+        public static final HashMap<GT_Recipe_ResearchStation, Integer> mRecipeToIDsMap = new HashMap<>(1000);
+        public static final HashMap<Integer, GT_Recipe_ResearchStation> mIDtoRecipeMap = new HashMap<>(1000);
+        public static final HashMap<GT_ItemStack, GT_Recipe_ResearchStation> mStackToRecipeMap = new HashMap<>(1000);
+
+        public static int curentlyFreeID = 0;
+
         public static HashMap<GT_ItemStack,Collection<GT_Recipe_ResearchStation>> mRecipeItemMap = new HashMap<>(100);
         public static HashMap<GT_ItemStack,Collection<GT_Recipe_ResearchStation>> mRecipeItemMapPrimitive = new HashMap<>();
 
+        public static int mResearchPageCount = 3;
+        public static ArrayList<GT_Recipe_ResearchStation>[] mPageNoDependanciesRecipes = new ArrayList[mResearchPageCount];
+
+        static {
+            for(int i = 0; i < mResearchPageCount; i++){
+                mPageNoDependanciesRecipes[i] = new ArrayList<>();
+            }
+        }
+
+        public int mID;
         public ItemStack[] mResearchItems;
         public int mSingleResearchTime;
         public ItemStack[] mInputsPerIteration ;
@@ -516,8 +540,21 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
         public GT_Recipe mTargetRecipe;
         public int mMinIterationsCount;
         public int mMaxIterationsCount;
+        public ItemStack mShownItem;
+        public int mapX, mapY;
+        public ArrayList<GT_Recipe_ResearchStation> mDependencies = new ArrayList<>();
+        public ArrayList<GT_Recipe_ResearchStation> mDependedRecipes = new ArrayList<>();
+        public String[] mDescription;
+        public String[] mRecipePageText = new String[0];
+        public int mPage;
+        public ItemStack mDataOrb;
 
-        public GT_Recipe_ResearchStation(ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack[] aFluidInputsPerIteration, int aComputation, int aEUt, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount) {
+
+        public GT_Recipe_ResearchStation(int aID, ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack[] aFluidInputsPerIteration, int aComputation, int aEUt, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount, Object... mapConfigs) {
+            if(mIDtoRecipeMap.get(aID)!=null)
+                throw new IllegalArgumentException("Research ID "+aID+" is already taken");
+            mID = aID;
+            mIDtoRecipeMap.put(mID, this);
             mResearchItems = aResearchItems;
             mSingleResearchTime = aSingleResearchTime;
             mInputsPerIteration = aInputsPerIteration;
@@ -527,6 +564,46 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
             mTargetRecipe = aTargetRecipe;
             mMinIterationsCount = aMinIterationsCount;
             mMaxIterationsCount = aMaxIterationsCount;
+
+            if(mEUt == -1)
+                return;
+            for(Object obj: mapConfigs){
+                if(obj instanceof ItemStack){
+                    mShownItem = (ItemStack)obj;
+                }
+                else if( obj instanceof int[]){
+                    int[] coords = (int[]) obj;
+                    if(coords.length==2){
+                        mapX = coords[0];
+                        mapY = coords[1];
+                    }
+                }
+                else if (obj instanceof GT_Recipe_ResearchStation[]){
+                    GT_Recipe_ResearchStation[] tDependencies = (GT_Recipe_ResearchStation[]) obj;
+                    for(GT_Recipe_ResearchStation tRecipe:tDependencies ){
+                        mDependencies.add(tRecipe);
+                        tRecipe.mDependedRecipes.add(this);
+                    }
+                }
+                else if (obj instanceof String[]){
+                    mDescription = (String[])obj;
+                }
+                else if (obj instanceof Integer){
+                    mPage = (Integer) obj;
+                }
+                else if (obj instanceof String){
+                    mRecipePageText = ((String)obj).split("\\|");
+                }
+            }
+            if(mShownItem==null)
+                mShownItem=mResearchItems[0];
+            if(mDependencies.size() == 0){
+                mPageNoDependanciesRecipes[mPage].add(this);
+            }
+            mRecipeToIDsMap.put(this,curentlyFreeID);
+           // mIDtoRecipeMap.put(curentlyFreeID,this);
+            mStackToRecipeMap.put(new GT_ItemStack(mTargetRecipe.mOutputs[0]),this);
+            curentlyFreeID++;
         }
 
         public static boolean addBaseRecipe(GT_Recipe_ResearchStation aRecipe){
@@ -577,6 +654,10 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                 return false;
             return true;
 
+        }
+
+        public NBTTagCompound writeRecipeToNBT(NBTTagCompound aNBT){
+            return mTargetRecipe.mOutputs[0].writeToNBT(aNBT);
         }
 
         protected static GT_Recipe_ResearchStation addToItemMap(GT_Recipe_ResearchStation aRecipe,boolean aPrimitive) {
@@ -689,6 +770,8 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                                         amt = 0;
                                         break;
                                     }
+                                    if(aStack.stackSize == 0)
+                                        aStack =null;
                                 }
                             }
                         }
@@ -714,6 +797,7 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                 ItemStack aOrb = ItemList.Tool_DataCluster.get(1L);
                 aOrb.setTagCompound(aTag);
                 tRecipe.mTargetRecipe.mSpecialItems = aOrb;
+                tRecipe.mDataOrb = aOrb;
 
             }
             tMap = mRecipeItemMapPrimitive;
@@ -730,6 +814,7 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                 ItemStack aOrb = ItemList.EngineersBook.get(1L);
                 aOrb.setTagCompound(aTag);
                 tRecipe.mTargetRecipe.mSpecialItems = aOrb;
+                tRecipe.mDataOrb = aOrb;
             }
             for(GT_Recipe tRecipe: GT_Recipe_Map.sResearchStationVisualRecipes.mRecipeList){
                 NBTTagCompound aTag = new NBTTagCompound();

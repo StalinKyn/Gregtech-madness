@@ -11,29 +11,23 @@ import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
-import gregtech.api.interfaces.metatileentity.IDataConnected;
-import gregtech.api.interfaces.metatileentity.IDataDevice;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
-import gregtech.api.objects.GT_Data_Packet;
 import gregtech.api.objects.GT_RenderedTexture;
 import gregtech.api.objects.ItemData;
 import gregtech.api.util.GT_Assemblyline_Server;
 import gregtech.api.util.GT_Log;
-import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_OreDictUnificator;
 import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.items.behaviors.Behaviour_DataOrb;
-import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_ComputerBase;
-import net.minecraft.entity.player.EntityPlayer;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_ComputerBaseLegasy;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import org.lwjgl.Sys;
 
 import static gregtech.api.enums.GT_Values.currentlyFreeDataID;
 
@@ -43,7 +37,7 @@ public class GT_MetaTileEntity_Scanner
     public long ID = 0;
 
     public boolean isDataScanningMode = false;
-    public GT_MetaTileEntity_ComputerBase mComputer = null;
+    public GT_MetaTileEntity_ComputerBaseLegasy mComputer = null;
 
     private String[] mScanedItem = new String[2];
 

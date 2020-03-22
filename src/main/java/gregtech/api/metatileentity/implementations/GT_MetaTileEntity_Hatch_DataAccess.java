@@ -9,17 +9,22 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.objects.GT_RenderedTexture;
 import gregtech.api.util.GT_LanguageManager;
+import gregtech.api.util.GT_Recipe;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_ComputerBase;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_LargeResearchStationBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class GT_MetaTileEntity_Hatch_DataAccess extends GT_MetaTileEntity_Hatch {
 
     public boolean isComputerPart = false;
-    public boolean needsUpdate = false;
+    public boolean needsUpdate = true;
+    public GT_MetaTileEntity_ComputerBase mComputer = null;
 
     public GT_MetaTileEntity_Hatch_DataAccess(int aID, String aName, String aNameRegional, int aTier) {
         super(aID, aName, aNameRegional, aTier, 16, new String[]{
@@ -135,7 +140,7 @@ public class GT_MetaTileEntity_Hatch_DataAccess extends GT_MetaTileEntity_Hatch 
         return freeSpace;
     }
 
-    public boolean saveRecipeData(NBTTagCompound aStackTag){
+    public boolean saveRecipeData(Integer aData){
         if(needsUpdate){
             formatDataItems();
             needsUpdate = false;
@@ -154,7 +159,12 @@ public class GT_MetaTileEntity_Hatch_DataAccess extends GT_MetaTileEntity_Hatch 
             freeSpace+=(size-usedCapacity);
             if(freeSpace<=0)
                 continue;
+            GT_Recipe.GT_Recipe_ResearchStation aRecipe = GT_Recipe.GT_Recipe_ResearchStation.mIDtoRecipeMap.get(aData);
+            if(aRecipe == null)
+                return false;
+            NBTTagCompound aStackTag = aRecipe.writeRecipeToNBT(new NBTTagCompound());
             tTag.setTag("researchItemTag"+(usedCapacity),aStackTag);
+            tTag.setInteger("rID"+(usedCapacity),aRecipe.mID);
             tTag.setInteger("usedCapacity",(usedCapacity+1));
             aStack.setTagCompound(tTag);
             System.out.println("saved recipe");
@@ -163,7 +173,28 @@ public class GT_MetaTileEntity_Hatch_DataAccess extends GT_MetaTileEntity_Hatch 
         return false;
     }
 
-    public boolean addAllToHashSet(HashSet<String> aSet){
+    public boolean addAllToHashSet(HashSet<Integer> aList){
+        if(needsUpdate){
+            formatDataItems();
+            needsUpdate = false;
+        }
+        for(ItemStack aStack: mInventory){
+            if(aStack==null|| !(ItemList.Tool_DataStick.isStackEqual(aStack,false,true)||ItemList.Tool_DataOrb.isStackEqual(aStack,false,true)||ItemList.Tool_DataCluster.isStackEqual(aStack,false,true)))
+                continue;
+            NBTTagCompound tTag = aStack.getTagCompound();
+            if(tTag == null)
+                continue;
+            int usedCapacity = tTag.getInteger("usedCapacity");
+            for(int i = 0;i<usedCapacity;i++){
+                int id = tTag.getInteger("rID"+(i));
+                if(id != 0)
+                    aList.add(id);
+            }
+        }
+        return true;
+    }
+
+  /*  public boolean addAllToHashSet(HashSet<String> aSet){
         if(needsUpdate){
             formatDataItems();
             needsUpdate = false;
@@ -187,7 +218,7 @@ public class GT_MetaTileEntity_Hatch_DataAccess extends GT_MetaTileEntity_Hatch 
             }
         }
         return true;
-    }
+    }*/
 
     public boolean formatDataItems(){
         for(ItemStack aStack: mInventory){
@@ -226,5 +257,13 @@ public class GT_MetaTileEntity_Hatch_DataAccess extends GT_MetaTileEntity_Hatch 
     @Override
     public int getInventoryStackLimit() {
         return 1;
+    }
+
+    @Override
+    public void onCloseGUI() {
+        needsUpdate = true;
+        if(mComputer!=null)
+            mComputer.onDataContainersUpdated();
+        super.onCloseGUI();
     }
 }

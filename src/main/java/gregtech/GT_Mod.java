@@ -11,6 +11,7 @@ import gregtech.api.enchants.Enchantment_EnderDamage;
 import gregtech.api.enchants.Enchantment_Radioactivity;
 import gregtech.api.enums.*;
 import gregtech.api.interfaces.internal.IGT_Mod;
+import gregtech.api.objects.CommandFixQuests;
 import gregtech.api.objects.ItemData;
 import gregtech.api.objects.MaterialStack;
 import gregtech.api.objects.XSTR;
@@ -1061,6 +1062,8 @@ public class GT_Mod implements IGT_Mod {
             }
         }
         GregTech_API.mServerStarted = true;
+
+        aEvent.registerServerCommand(new CommandFixQuests());
         GT_Log.out.println("GT_Mod: ServerStarting-Phase finished!");
         GT_Log.ore.println("GT_Mod: ServerStarting-Phase finished!");
         try {

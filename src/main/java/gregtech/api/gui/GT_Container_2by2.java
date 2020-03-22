@@ -1,6 +1,8 @@
 package gregtech.api.gui;
 
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.MetaTileEntity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 
@@ -26,5 +28,13 @@ public class GT_Container_2by2 extends GT_ContainerMetaTile_Machine {
     @Override
     public int getShiftClickSlotCount() {
         return 4;
+    }
+
+    @Override
+    public void onContainerClosed(EntityPlayer par1EntityPlayer) {
+       if( mTileEntity.getMetaTileEntity() instanceof MetaTileEntity){
+           ((MetaTileEntity)mTileEntity.getMetaTileEntity()).onCloseGUI();
+       }
+        super.onContainerClosed(par1EntityPlayer);
     }
 }

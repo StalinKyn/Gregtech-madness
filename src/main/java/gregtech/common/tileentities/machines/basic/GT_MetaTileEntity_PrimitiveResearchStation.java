@@ -6,15 +6,10 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
 import gregtech.api.objects.GT_RenderedTexture;
-import gregtech.api.util.GT_Config;
 import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.gui.GT_Container_PrimitiveResearchStation;
 import gregtech.common.gui.GT_GUIContainer_PrimitiveResearchStation;
-import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_LargeResearchStationBase;
-import ic2.api.crops.CropCard;
-import ic2.api.crops.Crops;
-import ic2.core.item.ItemCropSeed;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -61,7 +56,7 @@ public class GT_MetaTileEntity_PrimitiveResearchStation extends GT_MetaTileEntit
         if(getSpecialInput()==null||!GT_Utility.areStacksEqual(getSpecialInput(),ItemList.EngineersBook.get(1L),true))
             return 0;
         if(tResearchInputs!=null)
-            currentRecipe = GT_Recipe.GT_Recipe_ResearchStation.findRecipe(tResearchInputs,true);//todo check this
+            currentRecipe = GT_Recipe.GT_Recipe_ResearchStation.findRecipe(tResearchInputs,true);
         if(currentRecipe!=null){
             ItemStack[] tItemInputs = getItemInputs();
             if(GT_Recipe.GT_Recipe_ResearchStation.checkInputs(false,false, new FluidStack[0], tItemInputs,currentRecipe)){

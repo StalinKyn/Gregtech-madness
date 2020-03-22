@@ -629,7 +629,7 @@ public enum ItemList implements IItemContainer {
     Machine_LV_FluidHeater, Machine_MV_FluidHeater, Machine_HV_FluidHeater, Machine_EV_FluidHeater, Machine_IV_FluidHeater, Machine_LuV_FluidHeater, Machine_ZPM_FluidHeater, Machine_UV_FluidHeater,
     Machine_LV_Miner, Machine_MV_Miner,
     Machine_LV_OrganicReplicator, Machine_MV_OrganicReplicator, Machine_HV_OrganicReplicator, Machine_EV_OrganicReplicator, Machine_IV_OrganicReplicator, Machine_LuV_OrganicReplicator, Machine_ZPM_OrganicReplicator, Machine_UV_OrganicReplicator,
-    HandTeleporter, WirelessSoftMallet,
+    HandTeleporter, WirelessSoftMallet, DataSystemController,
 
     Neutron_Reflector, HologramicProjector, HologramicProjector_Creative,
     Reactor_Coolant_He_1, Reactor_Coolant_He_3, Reactor_Coolant_He_6, Reactor_Coolant_NaK_1, Reactor_Coolant_NaK_3, Reactor_Coolant_NaK_6,
@@ -675,7 +675,7 @@ public enum ItemList implements IItemContainer {
     LargeBatteryBuffer, Commutator, HadronCollider,Cover_WirelessAcceptor,WirelessTransmitter, EngineersBook, EngineersWorkstation, ClosedSpatialCell,
     Casing1,Casing2,Casing3,Casing4,Casing5,Casing6,Casing7,Casing8,Casing9,Casing10,Casing11,Casing12,Casing13,Casing14,Casing15,Casing16,
     GlassCasing1,GlassCasing2,GlassCasing3,GlassCasing4,GlassCasing5,GlassCasing6,GlassCasing7,
-    Casing_Collider_Center
+    Casing_Collider_Center, ComputerTerminal, LagCreator
     ;
 
     public static final ItemList[]

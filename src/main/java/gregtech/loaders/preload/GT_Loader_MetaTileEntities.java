@@ -12,7 +12,6 @@ import gregtech.api.util.GT_Log;
 import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_OreDictUnificator;
 import gregtech.api.util.GT_Recipe;
-import gregtech.common.render.GT_Renderer_Entity_Arrow;
 import gregtech.common.tileentities.automation.*;
 import gregtech.common.tileentities.boilers.GT_MetaTileEntity_Boiler_Bronze;
 import gregtech.common.tileentities.boilers.GT_MetaTileEntity_Boiler_Lava;
@@ -25,6 +24,8 @@ import gregtech.common.tileentities.machines.GT_MetaTileEntity_BasicHull_Steel;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_BasicHull_SteelBricks;
 import gregtech.common.tileentities.machines.basic.*;
 import gregtech.common.tileentities.machines.multi.*;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_LargeResearchStation1;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_Computer1;
 import gregtech.common.tileentities.machines.steam.*;
 import gregtech.common.tileentities.storage.GT_MetaTileEntity_Locker;
 import gregtech.common.tileentities.storage.GT_MetaTileEntity_QuantumChest;
@@ -299,9 +300,9 @@ public class GT_Loader_MetaTileEntities implements Runnable {
         ItemList.Hatch_Energy_UIV_64Amps.set(new GT_MetaTileEntity_Hatch_Energy(12287, "hatch.energy.64A.tier.11", "UIV 64A Energy Hatch", 11,64).getStackForm(1L));
 
         ItemList.Hatch_Circuit_Acess.set(new GT_MetaTileEntity_Hatch_CircuitAccess(9330,"hatch.circuity","Circuit access hatch",1).getStackForm(1L));
-        ItemList.Hatch_Data_Input.set(new GT_MetaTileEntity_Hatch_Data(9331,"hatch.data","Data hATCH iNPUT", 1).getStackForm(1L));
-        GT_OreDictUnificator.registerOre(OrePrefixes.wireGt01, Materials.Aluminium, new GT_MetaPipeEntity_DataCable(9332, aTextWire1 + "aluminium" + ".01", "1x " +"Data" + aTextWire2, 0.4F, Materials.Aluminium, 2L, 1000, false).getStackForm(1L));
-
+        ItemList.Hatch_Data_Input.set(new GT_MetaTileEntity_Hatch_Data(9331,"hatch.data","Data Hatch", 1).getStackForm(1L));
+        GT_OreDictUnificator.registerOre(OrePrefixes.wireGt01, Materials.Aluminium, new GT_MetaPipeEntity_DataCable(9332, aTextWire1 + "aluminium" + ".01", "1x " +"Data" + aTextWire2, 0.4F, Materials.Aluminium, 2, 1000, false).getStackForm(1L));
+        ItemList.DataSystemController.set(new GT_MetaTileEntity_DataSystemController(9333,"machine.datasystemcontroller","Data System Controller",1).getStackForm(1L));
 
         GT_ModHandler.addCraftingRecipe(ItemList.Hatch_Dynamo_ULV.get(1L, new Object[0]), bitsd, new Object[]{" MC", 'M', ItemList.Hull_ULV, 'C', OrePrefixes.cableGt01.get(Materials.Lead)});
         GT_ModHandler.addCraftingRecipe(ItemList.Hatch_Dynamo_LV.get(1L, new Object[0]), bitsd, new Object[]{" MC", 'M', ItemList.Hull_LV, 'C', OrePrefixes.cableGt01.get(Materials.Tin)});
@@ -1220,7 +1221,7 @@ public class GT_Loader_MetaTileEntities implements Runnable {
         ItemList.Machine_Multi_Furnace.set(new GT_MetaTileEntity_MultiFurnace(1003, "multimachine.multifurnace", "Multi Smelter").getStackForm(1L));
         ItemList.Machine_Multi_Liquefier_Basic.set(new GT_MetaTileEntity_Liquefier(1004, "multimachine.liquefier.basic", "Basic Liquefier",73).getStackForm(1L));
         ItemList.Machine_Multi_Liquefier_Advanced.set(new GT_MetaTileEntity_Liquefier(1005,"multimachine.liquefier.advanced", "Advanced Liquefier",1).getStackForm(1L));
-        ItemList.HadronCollider.set(new GT_MetaTileEntity_HadronCollider(1006,"multimachine.hadroncollider","Hadron Collider").getStackForm(1L));
+        ItemList.HadronCollider.set(new GT_MetaTileEntity_HadronColliderLegasy(1006,"multimachine.hadroncollider","Hadron Collider").getStackForm(1L));
         GT_ModHandler.addCraftingRecipe(ItemList.Machine_Multi_BlastFurnace.get(1L, new Object[0]), bitsd, new Object[]{"FFF", aTextCableHull, aTextWireCoil, 'M', ItemList.Casing_HeatProof, 'F', OreDictNames.craftingFurnace, 'C', OrePrefixes.circuit.get(Materials.Basic), 'W', OrePrefixes.cableGt01.get(Materials.Tin)});
         GT_ModHandler.addCraftingRecipe(ItemList.Machine_Multi_VacuumFreezer.get(1L, new Object[0]), bitsd, new Object[]{aTextPlate, aTextCableHull, aTextWireCoil, 'M', ItemList.Casing_FrostProof, 'P', ItemList.Electric_Pump_HV, 'C', OrePrefixes.circuit.get(Materials.Data), 'W', OrePrefixes.cableGt01.get(Materials.Gold)});
         GT_ModHandler.addCraftingRecipe(ItemList.Machine_Multi_ImplosionCompressor.get(1L, new Object[0]), bitsd, new Object[]{"OOO", aTextCableHull, aTextWireCoil, 'M', ItemList.Casing_SolidSteel, 'O', OrePrefixes.stone.get(Materials.Obsidian), 'C', OrePrefixes.circuit.get(Materials.Advanced), 'W', OrePrefixes.cableGt01.get(Materials.Aluminium)});
@@ -1237,7 +1238,7 @@ public class GT_Loader_MetaTileEntities implements Runnable {
         GT_ModHandler.addCraftingRecipe(ItemList.Machine_Multi_LargeBoiler_TungstenSteel.get(1L, new Object[0]), bitsd, new Object[]{aTextWireCoil, aTextCableHull, aTextWireCoil, 'M', ItemList.Casing_Firebox_TungstenSteel, 'C', OrePrefixes.circuit.get(Materials.Elite), 'W', OrePrefixes.cableGt01.get(Materials.Aluminium)});
 
 
-        ItemList.LargeResearchStation.set(new GT_MEtaTileEntity_LargeResearchStation1(1024,"multimachine.researchstation.tier.01","Large research station 1").getStackForm(1L));
+        ItemList.LargeResearchStation.set(new GT_MetaTileEntity_LargeResearchStation1(1024,"multimachine.researchstation.tier.01","Large research station 1").getStackForm(1L));
         ItemList.Computer.set(new GT_MetaTileEntity_Computer1(1025,"multimachine.computer.tier.01","Computer 1").getStackForm(1L));
 
         ItemList.Generator_Diesel_LV.set(new GT_MetaTileEntity_DieselGenerator(1110, "basicgenerator.diesel.tier.01", "Basic Combustion Generator", 1).getStackForm(1L));
@@ -1519,6 +1520,7 @@ public class GT_Loader_MetaTileEntities implements Runnable {
         ItemList.LargeBatteryBuffer.set(new GT_MetaTileEntity_LargeBatteryBuffer(12303,"miltimachine.largebatterubuffer","Large Battery Buffer").getStackForm(1L));
         ItemList.Commutator.set(new GT_MetaTileEntity_Commutator(12304,"basicmachine.commutator","Commutator", 8).getStackForm(1L));
 
+        ItemList.ComputerTerminal.set(new GT_MetaTileEntity_ComputerTerminal(12305,"basicmachine.computerterminal", "Computer Terminal", 8).getStackForm(1L));
     }
 
     private static void run4() {
@@ -1828,6 +1830,8 @@ public class GT_Loader_MetaTileEntities implements Runnable {
         GT_ModHandler.addCraftingRecipe(ItemList.Automation_ItemDistributor_ZPM.get(1L, new Object[0]), bitsd, new Object[]{"XCX", "VMV", " V ", 'M', ItemList.Hull_ZPM, 'V', ItemList.Conveyor_Module_ZPM, 'C', OreDictNames.craftingChest, 'X', OrePrefixes.circuit.get(Materials.Good)});
         GT_ModHandler.addCraftingRecipe(ItemList.Automation_ItemDistributor_UV.get(1L,  new Object[0]), bitsd, new Object[]{"XCX", "VMV", " V ", 'M', ItemList.Hull_UV,  'V', ItemList.Conveyor_Module_UV, 'C', OreDictNames.craftingChest, 'X', OrePrefixes.circuit.get(Materials.Good)});
         GT_ModHandler.addCraftingRecipe(ItemList.Automation_ItemDistributor_MAX.get(1L, new Object[0]), bitsd, new Object[]{"XCX", "VMV", " V ", 'M', ItemList.Hull_MAX, 'V', ItemList.Conveyor_Module_UV, 'C', OreDictNames.craftingChest, 'X', OrePrefixes.circuit.get(Materials.Good)});
+
+        ItemList.LagCreator.set(new GT_MetaTileEntity_LagCreator(13377,"gt.machine.lagcreator","Lag Creator",1).getStackForm(1));
     }
 
     private static void makeWires(Materials aMaterial, int aStartID, long aLossInsulated, long aLoss, long aAmperage, long aVoltage, boolean aInsulatable, boolean aAutoInsulated) {

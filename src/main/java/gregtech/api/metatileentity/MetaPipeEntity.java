@@ -821,4 +821,12 @@ public abstract class MetaPipeEntity implements IMetaTileEntity, IConnectable {
 
 	public boolean canConnect(byte aSide, TileEntity tTileEntity) { return false; }
 	public boolean getGT6StyleConnection() { return false; }
+
+    @Override
+    public void receiveExtendedBlockEvent(int aID, int aValue) {    }
+
+    @Override
+    public void onAdjacentBlockChange(int aX, int aY, int aZ) {
+
+    }
 }

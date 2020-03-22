@@ -693,7 +693,9 @@ public interface IGT_RecipeAdder {
 	 */
 	public void setIsAddingDeprecatedRecipes(boolean isAddingDeprecatedRecipes);
 
-	public boolean addElectricResearchStationRecipe(ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack[] aFluidInputsPerIteration, int aComputation, int aEUt, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount);
+	public GT_Recipe.GT_Recipe_ResearchStation addElectricResearchStationRecipe(int aID,ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack[] aFluidInputsPerIteration, int aComputation, int aEUt, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount, int aResearchPage, ItemStack aDisplayStack, String[] aDescription, String aRecipePageText, int[] aRecipeCoords, GT_Recipe.GT_Recipe_ResearchStation[] aDependencies);
+
+    public GT_Recipe.GT_Recipe_ResearchStation addElectricResearchStationRecipe(int aID,ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack[] aFluidInputsPerIteration, int aComputation, int aEUt, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount, int aResearchPage, Object... aParams);
 
     public boolean addPrimitiveResearchStationRecipe(ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack aFluidInputPerIteration, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount);
 

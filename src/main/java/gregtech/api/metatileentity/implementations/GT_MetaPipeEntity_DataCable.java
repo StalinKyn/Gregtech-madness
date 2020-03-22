@@ -1,6 +1,9 @@
 package gregtech.api.metatileentity.implementations;
 
 import gregtech.GT_Mod;
+import gregtech.api.datasystem.GT_DataNode;
+import gregtech.api.datasystem.GT_NodeConnection;
+import gregtech.api.datasystem.INodeContainer;
 import gregtech.api.enums.Dyes;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.TextureSet;
@@ -18,7 +21,7 @@ import gregtech.api.objects.GT_RenderedTexture;
 import gregtech.api.util.GT_CoverBehavior;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.GT_Client;
-import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_Commutator;
+import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_DataSystemController;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,6 +31,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -37,14 +41,15 @@ public class GT_MetaPipeEntity_DataCable extends MetaPipeEntity implements IMeta
 
     public final float mThickNess;
     public final Materials mMaterial;
-    public final long mDataChannels, mDataAmount;
+    public final long  mDataAmount;
+    public final int mDataChannels;
     public final boolean mInsulated;
     public long mUsedDataChannels = 0, mUsedDataChannelsLast20 = 0, mTransferredDataAmount20 = 0;
-    public  boolean isCrossing = false;
-    public static GT_MetaTileEntity_Commutator mCommutator = null;
+    public  boolean isNode = false;
+    public static GT_MetaTileEntity_DataSystemController mController = null;
 
 //region cable things
-    public GT_MetaPipeEntity_DataCable(int aID, String aName, String aNameRegional, float aThickNess, Materials aMaterial, long aDataChannels, long aDataAmount, boolean aInsulated) {
+    public GT_MetaPipeEntity_DataCable(int aID, String aName, String aNameRegional, float aThickNess, Materials aMaterial, int aDataChannels, long aDataAmount, boolean aInsulated) {
         super(aID, aName, aNameRegional, 0);
         mThickNess = aThickNess;
         mMaterial = aMaterial;
@@ -53,7 +58,7 @@ public class GT_MetaPipeEntity_DataCable extends MetaPipeEntity implements IMeta
         mInsulated = aInsulated;
     }
 
-    public GT_MetaPipeEntity_DataCable(String aName, float aThickNess, Materials aMaterial, long aDataChannels, long aDataAmount, boolean aInsulated) {
+    public GT_MetaPipeEntity_DataCable(String aName, float aThickNess, Materials aMaterial, int aDataChannels, long aDataAmount, boolean aInsulated) {
         super(aName, 0);
         mThickNess = aThickNess;
         mMaterial = aMaterial;
@@ -120,13 +125,30 @@ public class GT_MetaPipeEntity_DataCable extends MetaPipeEntity implements IMeta
 //endregion
 
     @Override
-    public void transferRef(byte aSide, GT_MetaTileEntity_Commutator aRef, HashSet<TileEntity> aAlreadyPassedSet) {
+    public void initConnections(byte aSide, GT_MetaTileEntity_DataSystemController aRef, HashSet<TileEntity> aAlreadyPassedSet, ArrayList<GT_MetaPipeEntity_DataCable> aCables, GT_DataNode aLastNode) {
         if (!isConnectedAtSide(aSide) && aSide != 6)
             return;
+        mController = aRef;
+        if(mController==null)
+            return;
 
-        if(mCommutator==null)
-            mCommutator = aRef;
         final IGregTechTileEntity baseMetaTile = getBaseMetaTileEntity();
+        aCables.add(this);
+
+        byte connections = 0;
+        for (byte i = 0; i < 6 ; i++)
+            if(isConnectedAtSide(i))
+                connections++;
+
+        if(connections>2){
+            isNode = true;
+            GT_DataNode newNode = new GT_DataNode();
+            if(newNode == aLastNode)
+                isNode = isNode;
+            mController.mSystem.addConnection(new GT_NodeConnection(aCables, newNode,aLastNode));
+            aLastNode = newNode;
+            aCables = new ArrayList<>();
+        }
 
         for (byte i = 0; i < 6 ; i++)
         if (i != aSide && isConnectedAtSide(i) && baseMetaTile.getCoverBehaviorAtSide(i).letsEnergyOut(i, baseMetaTile.getCoverIDAtSide(i), baseMetaTile.getCoverDataAtSide(i), baseMetaTile)) {
@@ -139,10 +161,11 @@ public class GT_MetaPipeEntity_DataCable extends MetaPipeEntity implements IMeta
 
                 if (tMeta instanceof IMetaTileEntityDataCable) {
                     if (tBaseMetaTile.getCoverBehaviorAtSide(tSide).letsEnergyIn(tSide, tBaseMetaTile.getCoverIDAtSide(tSide), tBaseMetaTile.getCoverDataAtSide(tSide), tBaseMetaTile) ) {
-                        ((IMetaTileEntityDataCable) ((IGregTechTileEntity) tTileEntity).getMetaTileEntity()).transferRef(tSide, aRef, aAlreadyPassedSet);
+                        ((IMetaTileEntityDataCable) ((IGregTechTileEntity) tTileEntity).getMetaTileEntity()).initConnections(tSide, aRef, aAlreadyPassedSet,aCables,aLastNode);
                     }
-                } else if(tMeta instanceof GT_MetaTileEntity_Hatch_Data){
-                    ((GT_MetaTileEntity_Hatch_Data)tMeta).acceptRef(aRef);
+                }
+                else if (tMeta instanceof INodeContainer){
+                    ((INodeContainer) tMeta).initConnections(mController,aCables,aLastNode);
                 }
 
             }
@@ -157,11 +180,8 @@ public class GT_MetaPipeEntity_DataCable extends MetaPipeEntity implements IMeta
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         if (aBaseMetaTileEntity.isServerSide()) {
-            mUsedDataChannels = 0;
             if (aTick % 20 == 0) {
-                mTransferredDataAmount20= 0;
-                mUsedDataChannelsLast20 = 0;
-                if (!GT_Mod.gregtechproxy.gt6Cable || mCheckConnections) checkConnections();
+                if (mCheckConnections) checkConnections();
             }
         }else if(aBaseMetaTileEntity.isClientSide() && GT_Client.changeDetected==4) aBaseMetaTileEntity.issueTextureUpdate();
     }
@@ -210,7 +230,7 @@ public class GT_MetaPipeEntity_DataCable extends MetaPipeEntity implements IMeta
 
     @Override
     public float getThickNess() {
-        if (GT_Mod.instance.isClientSide() && (GT_Client.hideValue & 0x1) != 0) return 0.0625F;
+        if (GT_Mod.instance.isClientSide() && (GT_Client.hideValue & 0x1) != 0) return 0.01F;
         return mThickNess;
     }
 
@@ -269,7 +289,7 @@ public class GT_MetaPipeEntity_DataCable extends MetaPipeEntity implements IMeta
     @Override
     public void setCheckConnections() {
         super.setCheckConnections();
-        if(mCommutator!=null)
-            mCommutator.mUpdateNeeded = true;
+        if(mController!=null)
+            mController.onSystemChanged();
     }
 }

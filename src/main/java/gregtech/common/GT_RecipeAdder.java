@@ -1128,9 +1128,36 @@ public class GT_RecipeAdder
 		this.isAddingDeprecatedRecipes = isAddingDeprecatedRecipes;
 	}
 
+    public GT_Recipe.GT_Recipe_ResearchStation addElectricResearchStationRecipe(int aID,ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack[] aFluidInputsPerIteration, int aComputation, int aEUt, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount, int aResearchPage, Object... aParams){
+        ItemStack[] aInputs = new ItemStack[18];
+        for(int i = 0; i < aResearchItems.length;i++){
+            aInputs[14+i] = aResearchItems[i];
+        }
+        for(int i = 0; i < aInputsPerIteration.length;i++){
+            aInputs[i] = aInputsPerIteration[i];
+        }
+        ItemStack[] aOutputs = new ItemStack[2];
+        NBTTagCompound aTag = new NBTTagCompound();
+        aTag.setTag("researchItemTag0",aTargetRecipe.mOutputs[0].writeToNBT(new NBTTagCompound()));
+        aTag.setInteger("capacitySize", 16);
+        aTag.setInteger("usedCapacity", 1);
+        aTag.setBoolean("isComputer",true);
+        ItemStack aOrb = ItemList.Tool_DataCluster.get(1L);
+        aOrb.setTagCompound(aTag);
+        aOutputs[0] = aOrb;
+        aOutputs[1] = aTargetRecipe.mOutputs[0];
+
+        GT_Recipe.GT_Recipe_Map.sResearchStationVisualRecipes.addFakeRecipe(false,aInputs,aOutputs,null,aFluidInputsPerIteration,null,aSingleResearchTime,aEUt,aComputation,false);
+        aTargetRecipe.setResearchID(aID);
+        aTargetRecipe.mSpecialItems = aOrb;
+        GT_Recipe.GT_Recipe_ResearchStation aRecipe = new GT_Recipe.GT_Recipe_ResearchStation(aID,aResearchItems,aSingleResearchTime,aInputsPerIteration,aFluidInputsPerIteration, aComputation, aEUt,aTargetRecipe,aMinIterationsCount,aMaxIterationsCount, aParams );
+        GT_Recipe.GT_Recipe_ResearchStation.addBaseRecipe(aRecipe);
+        return aRecipe;
+    }
+
     @Override
-    public boolean addElectricResearchStationRecipe(ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack[] aFluidInputsPerIteration, int aComputation, int aEUt, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount) {
-       ItemStack[] aInputs = new ItemStack[18];
+    public GT_Recipe.GT_Recipe_ResearchStation addElectricResearchStationRecipe(int aID,ItemStack[] aResearchItems, int aSingleResearchTime, ItemStack[] aInputsPerIteration, FluidStack[] aFluidInputsPerIteration, int aComputation, int aEUt, GT_Recipe aTargetRecipe, int aMinIterationsCount, int aMaxIterationsCount, int aResearchPage, ItemStack aDisplayStack, String[] aDescription, String aRecipePageText, int[] aRecipeCoords, GT_Recipe.GT_Recipe_ResearchStation[] aDependencies){
+	    ItemStack[] aInputs = new ItemStack[18];
        for(int i = 0; i < aResearchItems.length;i++){
            aInputs[14+i] = aResearchItems[i];
        }
@@ -1149,10 +1176,11 @@ public class GT_RecipeAdder
        aOutputs[1] = aTargetRecipe.mOutputs[0];
 
        GT_Recipe.GT_Recipe_Map.sResearchStationVisualRecipes.addFakeRecipe(false,aInputs,aOutputs,null,aFluidInputsPerIteration,null,aSingleResearchTime,aEUt,aComputation,false);
-       aTargetRecipe.mRequireResearch = true;
+        aTargetRecipe.setResearchID(aID);
        aTargetRecipe.mSpecialItems = aOrb;
-
-       return GT_Recipe.GT_Recipe_ResearchStation.addBaseRecipe(new GT_Recipe.GT_Recipe_ResearchStation(aResearchItems,aSingleResearchTime,aInputsPerIteration,aFluidInputsPerIteration, aComputation, aEUt,aTargetRecipe,aMinIterationsCount,aMaxIterationsCount));
+       GT_Recipe.GT_Recipe_ResearchStation aRecipe = new GT_Recipe.GT_Recipe_ResearchStation(aID,aResearchItems,aSingleResearchTime,aInputsPerIteration,aFluidInputsPerIteration, aComputation, aEUt,aTargetRecipe,aMinIterationsCount,aMaxIterationsCount, aDependencies,aDescription,aDisplayStack,aRecipeCoords, new Integer(aResearchPage) , aRecipePageText);
+       GT_Recipe.GT_Recipe_ResearchStation.addBaseRecipe(aRecipe);
+       return aRecipe;
     }
 
     @Override
@@ -1177,10 +1205,11 @@ public class GT_RecipeAdder
 
         GT_Recipe.GT_Recipe_Map.sPrimitiveResearchStationVisualRecipes.addFakeRecipe(false,aInputs,aOutputs,null,new FluidStack[]{aFluidInputPerIteration},null,aSingleResearchTime,0,0,false);
         aTargetRecipe.mRequireResearch = true;
-        aTargetRecipe.mSpecialItems = aOrb;//todo change to paper
+        aTargetRecipe.mSpecialItems = aOrb;
 
-        return GT_Recipe.GT_Recipe_ResearchStation.addPrimitiveRecipe(new GT_Recipe.GT_Recipe_ResearchStation(aResearchItems,aSingleResearchTime,aInputsPerIteration,new FluidStack[]{aFluidInputPerIteration}, 0, 0,aTargetRecipe,aMinIterationsCount,aMaxIterationsCount));
-    }
+       // return GT_Recipe.GT_Recipe_ResearchStation.addPrimitiveRecipe(new GT_Recipe.GT_Recipe_ResearchStation(aResearchItems,aSingleResearchTime,aInputsPerIteration,new FluidStack[]{aFluidInputPerIteration}, 0, -1,aTargetRecipe,aMinIterationsCount,aMaxIterationsCount, new Object[0]));
+    return true;
+	}
 
     @Override
     public boolean addEngineersWorkstationRecipe(ItemStack[] aInputs, FluidStack aFluidInput, ItemStack aSpecial, ItemStack aOutput1, int aDuration) {

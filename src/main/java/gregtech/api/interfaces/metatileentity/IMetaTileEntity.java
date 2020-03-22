@@ -406,4 +406,8 @@ public interface IMetaTileEntity extends ISidedInventory, IFluidTank, IFluidHand
     boolean hasAlternativeModeText();
     
     String getAlternativeModeText();
+
+    void receiveExtendedBlockEvent(int aID, int aValue);
+
+    void onAdjacentBlockChange(int aX, int aY, int aZ);
 }

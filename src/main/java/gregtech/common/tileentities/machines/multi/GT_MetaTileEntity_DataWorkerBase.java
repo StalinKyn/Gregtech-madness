@@ -1,26 +1,24 @@
 package gregtech.common.tileentities.machines.multi;
 
 import gregtech.GT_Mod;
-import gregtech.api.interfaces.metatileentity.IDataDevice;
+import gregtech.api.datasystem.GT_DataNode;
+import gregtech.api.datasystem.GT_InformationBundle;
+import gregtech.api.datasystem.IDataDevice;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.*;
-import gregtech.api.objects.GT_Data_Packet;
-import gregtech.api.util.GT_Utility;
-import net.minecraft.entity.player.EntityPlayer;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Data;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Maintenance;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_DataSystemController;
 import net.minecraft.item.ItemStack;
-
-import java.util.ArrayList;
-import static gregtech.api.enums.GT_Values.currentlyFreeDataID;
 
 public abstract class GT_MetaTileEntity_DataWorkerBase extends GT_MetaTileEntity_MultiBlockBase implements IDataDevice {
 
 
     public GT_MetaTileEntity_Hatch_Data mDataHatch = null;
+    public GT_MetaTileEntity_DataSystemController mSystemController;
 
-    private byte mAnimationOffset = 5;
-    private boolean mStartProccess = false;
+    private boolean startWorking = false;
 
     public GT_MetaTileEntity_DataWorkerBase(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
@@ -30,60 +28,36 @@ public abstract class GT_MetaTileEntity_DataWorkerBase extends GT_MetaTileEntity
         super(aName);
     }
 
-
-    public void onPacketAccepted(GT_Data_Packet aPacket){
-        //do nothing
-    }
-
     public boolean addDataHatchToMachineList(IGregTechTileEntity aTileEntity, int aBaseCasingIndex) {
         if (aTileEntity == null) return false;
         IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
         if (aMetaTileEntity == null) return false;
         if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Data) {
-            ((GT_MetaTileEntity_Hatch_Data) aMetaTileEntity).multiblock = this;
-            ((GT_MetaTileEntity_Hatch) aMetaTileEntity).updateTexture(aBaseCasingIndex);
-            if(this instanceof GT_MetaTileEntity_ComputerBase){
-                mDataHatch = (GT_MetaTileEntity_Hatch_Data)aMetaTileEntity;
+            GT_MetaTileEntity_Hatch_Data aHatch = ((GT_MetaTileEntity_Hatch_Data) aMetaTileEntity);
+            aHatch.multiblock = this;
+            aHatch.updateTexture(aBaseCasingIndex);
+            if(mDataHatch == null){
+                mDataHatch = aHatch;
+                aHatch.addMultiblockToSystem(this);
                 return true;
             }
-            else {
-            if(mDataHatch == aMetaTileEntity)
-             return true;
-                mDataHatch =(GT_MetaTileEntity_Hatch_Data) aMetaTileEntity;
-            return true;
-            }
+            else if (mDataHatch == aHatch)
+                aHatch.addMultiblockToSystem(this);
+                return true;
         }
         return false;
     }
 
-    public char getType(){
-        return ' ';
-    }
+    public void onBundleAccepted(GT_InformationBundle aBundle){
 
-    public boolean getWorkingStatus() {
-        return mMaxProgresstime-mProgresstime>0;
-    }
-
-    public void abortProcces(){
-        mMaxProgresstime = 0;
     }
 
     public void startProcessing(){
-        mStartProccess = true;
-    }
-
-    @Override
-    public void onScrewdriverRightClick(byte aSide, EntityPlayer aPlayer, float aX, float aY, float aZ) {
-        System.out.println(" df"+getBaseMetaTileEntity().isActive());
-
+        startWorking = true;
     }
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        if(mMaxProgresstime>0)
-            mAnimationOffset = 2;
-        else
-            mAnimationOffset = 0;
         if (aBaseMetaTileEntity.isServerSide()) {
             if (mEfficiency < 0) mEfficiency = 0;
             if (--mUpdate == 0 || --mStartUpCheck == 0) {
@@ -151,8 +125,7 @@ public abstract class GT_MetaTileEntity_DataWorkerBase extends GT_MetaTileEntity
                                     mMaxProgresstime = 0;
                                     mEfficiencyIncrease = 0;
                                     endProcess();
-                                    if (aBaseMetaTileEntity.isAllowedToWork())maintainMachine();
-                                    if (aBaseMetaTileEntity.isAllowedToWork()&&mStartProccess){ checkRecipe(mInventory[1]); mStartProccess=false;}
+                                    if (aBaseMetaTileEntity.isAllowedToWork()) checkRecipe(mInventory[1]);
                                     if (mOutputFluids != null && mOutputFluids.length > 0) {
                                         if (mOutputFluids.length > 1) {
                                             try {
@@ -164,14 +137,10 @@ public abstract class GT_MetaTileEntity_DataWorkerBase extends GT_MetaTileEntity
                                 }
                             }
                         } else {
-                            if (aBaseMetaTileEntity.isAllowedToWork()) {
-                                maintainMachine();
-                            }
-                            if (mMaxProgresstime <= 0) mEfficiency = Math.max(0, mEfficiency - 1000);
-                            if (mStartProccess) {
-                                mStartProccess = false;
-                                if (aBaseMetaTileEntity.isAllowedToWork()) {
-                                    if(maintainMachine())checkRecipe(mInventory[1]);
+                            if (aTick % 100 == 0 || aBaseMetaTileEntity.hasWorkJustBeenEnabled() || aBaseMetaTileEntity.hasInventoryBeenModified() || startWorking) {
+                                startWorking = false;
+                                if (aBaseMetaTileEntity.isAllowedToWork()||true) {
+                                    checkRecipe(mInventory[1]);
                                 }
                                 if (mMaxProgresstime <= 0) mEfficiency = Math.max(0, mEfficiency - 1000);
                             }
@@ -184,7 +153,7 @@ public abstract class GT_MetaTileEntity_DataWorkerBase extends GT_MetaTileEntity
                 }
             }
             aBaseMetaTileEntity.setErrorDisplayID((aBaseMetaTileEntity.getErrorDisplayID() & ~127) | (mWrench ? 0 : 1) | (mScrewdriver ? 0 : 2) | (mSoftHammer ? 0 : 4) | (mHardHammer ? 0 : 8) | (mSolderingTool ? 0 : 16) | (mCrowbar ? 0 : 32) | (mMachine ? 0 : 64));
-            aBaseMetaTileEntity.setActive((mMaxProgresstime > 0)||(mAnimationOffset--)>0);
+            aBaseMetaTileEntity.setActive(mMaxProgresstime > 0);
         }
     }
 
@@ -192,7 +161,20 @@ public abstract class GT_MetaTileEntity_DataWorkerBase extends GT_MetaTileEntity
 
     }
 
-    protected boolean maintainMachine(){
-        return false;
+    @Override
+    public GT_DataNode getNode() {
+        if(mDataHatch == null)
+            return null;
+        else
+            return mDataHatch.getNode();
+    }
+
+    public void onPacketStuck(){
+
+    }
+
+    @Override
+    public void onDisconnected() {
+        stopMachine();
     }
 }

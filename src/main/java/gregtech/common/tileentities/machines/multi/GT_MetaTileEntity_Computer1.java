@@ -4,14 +4,8 @@ import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_CircuitAccess;
 import gregtech.api.objects.GT_RenderedTexture;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-
-import java.awt.*;
-import java.util.ArrayList;
 
 public class GT_MetaTileEntity_Computer1 extends GT_MetaTileEntity_ComputerBase {
 
@@ -53,11 +47,13 @@ public class GT_MetaTileEntity_Computer1 extends GT_MetaTileEntity_ComputerBase 
     @Override
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         mCircuitAccessHatches.clear();
-        mCalculationPower = 0;
-       return addCircuitAccessToMachineList(aBaseMetaTileEntity.getIGregTechTileEntityOffset(0,1,0),16)&&
+        mCalculationPower = 1000;
+       boolean b =  addCircuitAccessToMachineList(aBaseMetaTileEntity.getIGregTechTileEntityOffset(0,1,0),16)&&
         addDataHatchToMachineList(aBaseMetaTileEntity.getIGregTechTileEntityOffset(0,2,0),16)&&
                 addDataAccessToMachineList(aBaseMetaTileEntity.getIGregTechTileEntityOffset(0,3,0),16)&&
                 addMaintenanceToMachineList(aBaseMetaTileEntity.getIGregTechTileEntityOffset(0,4,0),16);
+       super.checkMachine(aBaseMetaTileEntity,aStack);
+       return b;
 
     }
 
@@ -65,6 +61,8 @@ public class GT_MetaTileEntity_Computer1 extends GT_MetaTileEntity_ComputerBase 
     public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
         return new GT_MetaTileEntity_Computer1(this.mName);
     }
+
+
 
 
 }

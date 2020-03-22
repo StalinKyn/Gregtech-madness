@@ -55,6 +55,7 @@ public final class MessageSetFlaskCapacity extends GT_Packet {
     @Override
     public void process(IBlockAccess aWorld) {
         World w = DimensionManager.getWorld(dimID);
+        boolean b = w.isRemote;
         if (w != null && w.getEntityByID(playerID) instanceof EntityPlayer) {
             ItemStack stack = ((EntityPlayer) w.getEntityByID(playerID)).getHeldItem();
             if ((stack != null) && (stack.stackSize > 0)) {

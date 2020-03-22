@@ -3,6 +3,7 @@ package gregtech.common.items.behaviors;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.Dyes;
 import gregtech.api.enums.ItemList;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.items.GT_MetaBase_Item;
 import gregtech.api.util.GT_LanguageManager;
 import gregtech.api.util.GT_Utility;
@@ -13,6 +14,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -107,7 +109,14 @@ public class Behaviour_Spray_Color
             aWorld.setBlockMetadataWithNotify(aX, aY, aZ, (this.mColor ^ 0xFFFFFFFF) & 0xF, 3);
             return true;
         }
-        return aBlock.recolourBlock(aWorld, aX, aY, aZ, ForgeDirection.getOrientation(aSide), (this.mColor ^ 0xFFFFFFFF) & 0xF);
+        TileEntity tTileEntity = aWorld.getTileEntity(aX,aY,aZ);
+        if(tTileEntity instanceof IGregTechTileEntity){
+            IGregTechTileEntity iGregTechTileEntity = (IGregTechTileEntity) tTileEntity;
+            if(iGregTechTileEntity.getColorization()!=-1)
+                iGregTechTileEntity.setColorization((byte)-1);
+            return true;
+        }
+        return aBlock.recolourBlock(aWorld, aX, aY, aZ, ForgeDirection.getOrientation(aSide), (mColor ^ 0xFFFFFFFF) & 0xF);
     }
 
     public List<String> getAdditionalToolTips(GT_MetaBase_Item aItem, List<String> aList, ItemStack aStack) {

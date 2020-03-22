@@ -1,29 +1,30 @@
 package gregtech.common.tileentities.machines.multi;
 
-import gregtech.api.enums.ItemList;
+import gregtech.api.datasystem.*;
 import gregtech.api.gui.GT_GUIContainer_MultiMachine;
-import gregtech.api.interfaces.metatileentity.IDataDevice;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.*;
-import gregtech.api.objects.GT_Data_Packet;
-import gregtech.api.util.GT_Utility;
-import net.minecraft.entity.player.EntityPlayer;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_CircuitAccess;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_DataAccess;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 
-public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_DataWorkerBase {
+public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_DataWorkerBase implements IDataProducer, IDataHandler<Integer>{
 
     public long mCalculationPower = 0;
-    public Object[] mRequest = null;
+    public int rWorkTime = 0, rCalculations = 0;
 
     public ArrayList<GT_MetaTileEntity_Hatch_CircuitAccess> mCircuitAccessHatches = new ArrayList<GT_MetaTileEntity_Hatch_CircuitAccess>();
     public ArrayList<GT_MetaTileEntity_Hatch_DataAccess> mDataAccessHatches = new ArrayList<>();
+
+    private HashSet<Integer> cashedData;
+
+    IDataDevice mWorker = null;
 
     public GT_MetaTileEntity_ComputerBase(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
@@ -61,6 +62,7 @@ public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_D
             if(mDataAccessHatches.contains(aMetaTileEntity))
                 return true;
             ((GT_MetaTileEntity_Hatch) aMetaTileEntity).updateTexture(aBaseCasingIndex);
+            ((GT_MetaTileEntity_Hatch_DataAccess) aMetaTileEntity).mComputer = this;
             mDataAccessHatches.add((GT_MetaTileEntity_Hatch_DataAccess) aMetaTileEntity);
             return true;
         }
@@ -69,14 +71,59 @@ public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_D
 
     @Override
     public boolean checkRecipe(ItemStack aStack) {
-        if(mRequest==null||((int)mRequest[1]>getCalculationPower()))
+        if(rWorkTime == 0 || rCalculations > mCalculationPower)
             return false;
         mEfficiency = 10000;
         mEfficiencyIncrease = 10000;
-        mMaxProgresstime = (int)mRequest[0];
-        ((GT_MetaTileEntity_LargeResearchStationBase)mRequest[2]).checkRecipe(null);
-        mRequest = null;
+        mMaxProgresstime = rWorkTime;
+        mSystemController.mSystem.sendAutomatedBundle(getNode(),new GT_RequestBundle(rCalculations, rWorkTime, this).approve(),mWorker.getNode());
+        rWorkTime = 0;
         return true;
+    }
+
+    @Override
+    public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
+        onDataContainersUpdated();
+        return false;
+    }
+
+    @Override
+    public boolean onRunningTick(ItemStack aStack) {
+        if (getBaseMetaTileEntity().isClientSide()) return false;
+        if(mWorker==null||getNode()==null) {
+            stopMachine();
+            return false;
+        }
+        //long nano = System.nanoTime();
+        mSystemController.mSystem.sendAutomatedBundle(getNode(),new GT_InformationBundle(rCalculations), mWorker.getNode());
+       // System.out.println("time "+(System.nanoTime()-nano));
+        return super.onRunningTick(aStack);
+    }
+
+    @Override
+    public boolean canProduce(GT_InformationBundle aBundle) {
+        if (aBundle instanceof GT_RequestBundle){
+            GT_RequestBundle aRequest = (GT_RequestBundle) aBundle;
+            if(aRequest.mComputation<=mCalculationPower && !getBaseMetaTileEntity().isActive() /*&& getBaseMetaTileEntity().isAllowedToWork()*/){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean produceDataBundle(GT_InformationBundle aBundle) {
+        if (aBundle instanceof GT_RequestBundle) {
+            GT_RequestBundle aRequest = (GT_RequestBundle) aBundle;
+            if (aRequest.mComputation <= mCalculationPower && !getBaseMetaTileEntity().isActive()/* && getBaseMetaTileEntity().isAllowedToWork()*/) {
+                mWorker = aRequest.mSender;
+                rWorkTime = aRequest.mTime;
+                rCalculations = aRequest.mComputation;
+                startProcessing();
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getCalculationPower(){
@@ -88,7 +135,7 @@ public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_D
     }
 
     public boolean requestCalculations(Object[] aRequest){
-        mRequest = aRequest;
+       // mRequest = aRequest;
         return true;
     }
 
@@ -96,11 +143,6 @@ public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_D
     public void onServerStart() {
         mDataHatch = null;
         super.onServerStart();
-    }
-
-    @Override
-    public void startProcessing() {
-        checkRecipe(null);
     }
 
     public int getMaxEfficiency(ItemStack aStack) {
@@ -119,7 +161,7 @@ public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_D
         return false;
     }
 
-    public boolean saveRecipeData(NBTTagCompound aTag){
+    public boolean saveRecipeData(Integer aTag){
         for(GT_MetaTileEntity_Hatch_DataAccess aHatch: mDataAccessHatches){
            if(aHatch.getFreeSpace()>0){
                aHatch.saveRecipeData(aTag);
@@ -128,6 +170,14 @@ public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_D
 
         }
         return false;
+    }
+
+    @Override
+    public void addAllDataToHashSet(HashSet<Integer> set) {
+        for(GT_MetaTileEntity_Hatch_DataAccess aHatch: mDataAccessHatches){
+            aHatch.addAllToHashSet(set);
+        }
+        cashedData = set;
     }
 
     public int getFreeSpace(){
@@ -139,12 +189,51 @@ public abstract class GT_MetaTileEntity_ComputerBase extends GT_MetaTileEntity_D
     }
 
     @Override
-    public boolean onWireCutterRightClick(byte aSide, byte aWrenchingSide, EntityPlayer aPlayer, float aX, float aY, float aZ) {
-        mMaxProgresstime = 100;
-        mEfficiency = 10000;
-        mEfficiencyIncrease = 10000;
-        return false;
+    public void stopMachine() {
+        super.stopMachine();
+        if(mWorker!=null)
+            mWorker.onProcessAborted();
     }
 
+    @Override
+    public void onProcessAborted() {
+        super.stopMachine();
+    }
 
+    @Override
+    public void onPacketStuck() {
+        stopMachine();
+    }
+
+    @Override
+    public HashSet<Integer> getStoredData(int selector) {
+        if(selector != 1)
+            return null;
+        HashSet<Integer> tOut = new HashSet<>();
+        for(GT_MetaTileEntity_Hatch_DataAccess aHatch: mDataAccessHatches){
+            aHatch.addAllToHashSet(tOut);
+        }
+        return tOut;
+    }
+
+    @Override
+    public boolean saveData(Integer data) {
+        saveRecipeData(data);
+        return true;
+    }
+
+    @Override
+    public boolean canStore(Integer item) {
+        return getFreeSpace()>0;
+    }
+
+    public void onDataContainersUpdated(){
+        HashSet<Integer> tOut = new HashSet<>();
+        for(GT_MetaTileEntity_Hatch_DataAccess aHatch: mDataAccessHatches){
+            aHatch.addAllToHashSet(tOut);
+        }
+        if(!tOut.equals(cashedData)){
+            mSystemController.onDataUnpdated();
+        }
+    }
 }
